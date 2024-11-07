@@ -1,8 +1,28 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const session = require('express-session');
+const connectDB = require('./src/db.js');
+const path = require('path');
+const userRoutes = require('./src/routes/user.js');
 const app = express()
-app.use(express.json())
 require("dotenv").config();
+
+app.use(express.json())
+app.use('/user', userRoutes);
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views')); // Define o diretório de views
+
+connectDB();
+
+// Session config
+app.use(session({
+  secret: process.env.SECRET_KEY, 
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false } // Deve ser true se você estiver em HTTPS
+}))
+
 
 // Default Schema
 const schema_data = new mongoose.Schema({
@@ -35,7 +55,8 @@ const PlayerCredentials = mongoose.model('PlayerCredentials', playerCredentialsS
 const player_data = mongoose.model('DataPlayer', schema_data)
 
 app.get('/', (req, res) => {
-    res.send('API is running');
+  const nome = 'João';  // Exemplo de dado a ser passado para o EJS
+  res.render('index', { nome });  // Renderiza a view 'index.ejs' com a variável 'nome'
 });
 
 // Registrar
@@ -217,10 +238,4 @@ app.get("/get_all_players", async (req, res) => {
 app.delete("/deleteById/:id", async(req,res) => {
     const data = await player_data.findByIdAndDelete(req.params.id)
     return res.send(data)
-})
-
-// Link do MongoDB
-app.listen(process.env.PORT, () => {
-    mongoose.connect(process.env.DB_URI)
-    console.log('Banco de dados conectado')
 })
