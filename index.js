@@ -2,7 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const app = express()
 app.use(express.json())
-const port = 3000
+require("dotenv").config();
 
 // Default Schema
 const schema_data = new mongoose.Schema({
@@ -220,7 +220,7 @@ app.delete("/deleteById/:id", async(req,res) => {
 })
 
 // Link do MongoDB
-app.listen(port, () => {
-    mongoose.connect('mongodb+srv://daniels098:Rafateamo98@clustercotilsadventure.xxcas.mongodb.net/?retryWrites=true&w=majority&appName=ClusterCotilsAdventure')
+app.listen(process.env.PORT, () => {
+    mongoose.connect(process.env.DB_URI)
     console.log('Banco de dados conectado')
 })
